@@ -11,7 +11,7 @@ anchors:
   - [ 140,301,  303,264,  238,542 ]  # P5/32
   - [ 436,615,  739,380,  925,792 ]  # P6/64
 
-# yolov7 backbone
+# yolov7_pose backbone
 backbone:
   [[-1, 1, ReOrg, []],  # 0
    [-1, 1, Conv, [64, 3, 1]],  # 1-P1/2
@@ -67,7 +67,7 @@ backbone:
    [-1, 1, Conv, [1024, 1, 1]],  # 46
   ]
 
-# yolov7 head
+# yolov7_pose head
 head:
   [[-1, 1, SPPCSPC, [512]], # 47
   

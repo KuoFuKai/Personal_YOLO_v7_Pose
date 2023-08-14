@@ -123,7 +123,7 @@ def detect(opt):
 
 
                 if save_txt_tidl:  # Write to file in tidl dump format
-                    for *xyxy, conf, cls in det_tidl:
+                    for *xyxy, conf, cls in det:
                         xyxy = torch.tensor(xyxy).view(-1).tolist()
                         line = (conf, cls,  *xyxy) if opt.save_conf else (cls, *xyxy)  # label format
                         with open(txt_path + '.txt', 'a') as f:
@@ -162,21 +162,25 @@ def detect(opt):
 
     print(f'Done. ({time.time() - t0:.3f}s)')
 
-
+def_save_text = False
+def_save_conf = True
+def_save_text_tidl = True
+def_save_crop = True
+def_kpt_label = True
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov5s.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='yolov7-w6-pose.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='data/images', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', nargs= '+', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='IOU threshold for NMS')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--view-img', action='store_true', help='display results')
-    parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
-    parser.add_argument('--save-txt-tidl', action='store_true', help='save results to *.txt in tidl format')
+    parser.add_argument('--save-txt', action='store_true', default=def_save_text, help='save results to *.txt')
+    parser.add_argument('--save-txt-tidl', action='store_true', default=def_save_text_tidl, help='save results to *.txt in tidl format')
     parser.add_argument('--save-bin', action='store_true', help='save base n/w outputs in raw bin format')
-    parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
-    parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
+    parser.add_argument('--save-conf', action='store_true', default=def_save_conf, help='save confidences in --save-txt labels')
+    parser.add_argument('--save-crop', action='store_true', default=def_save_crop, help='save cropped prediction boxes')
     parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
     parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --class 0, or --class 0 2 3')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
@@ -188,7 +192,7 @@ if __name__ == '__main__':
     parser.add_argument('--line-thickness', default=3, type=int, help='bounding box thickness (pixels)')
     parser.add_argument('--hide-labels', default=False, action='store_true', help='hide labels')
     parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
-    parser.add_argument('--kpt-label', action='store_true', help='use keypoint labels')
+    parser.add_argument('--kpt-label', action='store_true', default=def_kpt_label, help='use keypoint labels')
     opt = parser.parse_args()
     print(opt)
     check_requirements(exclude=('tensorboard', 'pycocotools', 'thop'))
