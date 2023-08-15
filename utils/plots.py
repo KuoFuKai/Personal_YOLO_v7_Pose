@@ -112,6 +112,7 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
                 if conf < 0.5:
                     continue
             cv2.circle(im, (int(x_coord), int(y_coord)), radius, (int(r), int(g), int(b)), -1)
+            cv2.putText(im, str(int(x_coord))+", "+str(int(y_coord)), (int(x_coord), int(y_coord)), 0, 0.3, [225, 255, 255], thickness=1, lineType=cv2.LINE_AA)
 
     for sk_id, sk in enumerate(skeleton):
         r, g, b = pose_limb_color[sk_id]
