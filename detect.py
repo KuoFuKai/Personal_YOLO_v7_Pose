@@ -121,13 +121,46 @@ def detect(opt):
                         if opt.save_crop:
                             save_one_box(xyxy, im0s, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
 
+                if save_txt_tidl:
+                    height, width, _ = im0.shape  # Extract dimensions from im0
 
-                if save_txt_tidl:  # Write to file in tidl dump format
+                    # List of body parts
+                    body_parts = ['nose', 'left eye', 'right eye', 'left ear', 'right ear', 'left shoulder',
+                                  'right shoulder', 'left elbow',
+                                  'right elbow', 'left wrist', 'right wrist', 'left hip', 'right hip', 'left knee',
+                                  'right knee', 'left ankle', 'right ankle']
+
+                    global_labels = ['conf', 'label', 'x', 'y', 'w', 'h', 'class_conf', 'box_conf']
+
                     for *xyxy, conf, cls in det:
-                        xyxy = torch.tensor(xyxy).view(-1).tolist()
-                        line = (conf, cls,  *xyxy) if opt.save_conf else (cls, *xyxy)  # label format
+                        formatted_output = f"conf:{conf:.3f}, label:{cls:.3f}"
+
+                        # Convert global xyxy to percentage
+                        for label, value in zip(global_labels[2:4],
+                                                xyxy[:2]):  # Using first 2 values of xyxy for x and y
+                            percentage = value / width if 'x' in label else value / height
+                            formatted_output += f", {label}:{percentage:.3f}"
+
+                        for label, value in zip(global_labels[4:6],
+                                                xyxy[2:4]):  # Using next 2 values of xyxy for w and h
+                            percentage = value / width if 'w' in label else value / height
+                            formatted_output += f", {label}:{percentage:.3f}"
+
+                        for label, value in zip(global_labels[6:],
+                                                xyxy[4:6]):  # Remaining 2 values for class_conf and box_conf
+                            formatted_output += f", {label}:{value:.3f}"
+
+                        body_params = xyxy[6:]
+
+                        for i in range(0, len(body_params), 3):
+                            part_name = body_parts[i // 3]
+                            x_percentage = body_params[i] / width
+                            y_percentage = body_params[i + 1] / height if (i + 1) < len(body_params) else 0
+                            conf_value = body_params[i + 2] if (i + 2) < len(body_params) else 0
+                            formatted_output += f", ({part_name} | x:{x_percentage:.3f}, y:{y_percentage:.3f}, conf:{conf_value:.4f})"
+
                         with open(txt_path + '.txt', 'a') as f:
-                            f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                            f.write(formatted_output + '\n')
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')
