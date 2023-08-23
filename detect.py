@@ -133,18 +133,19 @@ def detect(opt):
                     global_labels = ['conf', 'label', 'x', 'y', 'w', 'h', 'class_conf', 'box_conf']
 
                     for *xyxy, conf, cls in det:
+                        x_center = (xyxy[0] + xyxy[2]) / 2
+                        y_center = (xyxy[1] + xyxy[3]) / 2
+                        w_bbox = xyxy[2] - xyxy[0]
+                        h_bbox = xyxy[3] - xyxy[1]
+
+                        # Convert to percentage
+                        x_center_percentage = x_center / width
+                        y_center_percentage = y_center / height
+                        w_percentage = w_bbox / width
+                        h_percentage = h_bbox / height
+
                         formatted_output = f"conf:{conf:.3f}, label:{cls:.3f}"
-
-                        # Convert global xyxy to percentage
-                        for label, value in zip(global_labels[2:4],
-                                                xyxy[:2]):  # Using first 2 values of xyxy for x and y
-                            percentage = value / width if 'x' in label else value / height
-                            formatted_output += f", {label}:{percentage:.3f}"
-
-                        for label, value in zip(global_labels[4:6],
-                                                xyxy[2:4]):  # Using next 2 values of xyxy for w and h
-                            percentage = value / width if 'w' in label else value / height
-                            formatted_output += f", {label}:{percentage:.3f}"
+                        formatted_output += f", x-center:{x_center_percentage:.3f}, y-center:{y_center_percentage:.3f}, w:{w_percentage:.3f}, h:{h_percentage:.3f}"
 
                         for label, value in zip(global_labels[6:],
                                                 xyxy[4:6]):  # Remaining 2 values for class_conf and box_conf
